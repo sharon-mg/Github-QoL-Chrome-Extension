@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub PR Link Copier",
+  "version": "1.0",
+  "permissions": ["scripting", "activeTab", "clipboardWrite"],
+  "action": {
+    "default_title": "Copy PR Link"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/pull/*", "https://github.com/*/*/pull/*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+    "icons": {
+    "128": "icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icon.png", "iconPressed.png", "iconDoublePressed.png", "approvers.txt"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
+}
