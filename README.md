@@ -24,7 +24,7 @@ Because typing PR links (and tagging people) is overrated 😎.
 2. Open **Chrome** and go to `chrome://extensions/`.  
 3. Enable **Developer mode** (top right).  
 4. Click **Load unpacked** and select the extension’s folder.
-5. Edit approvers.txt as described in the [configuraion section](Configuration)
+5. Edit approvers.txt as described in the [configuraion section](#-configuration)
 6. The icon will appear next to the PR title when you open a PR page.
 
 ---
