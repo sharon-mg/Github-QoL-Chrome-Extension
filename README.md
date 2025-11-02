@@ -33,12 +33,12 @@ Because typing PR links (and tagging people) is overrated 😎.
 
 ### Single-click → copy with approvers  
 Copies a Slack-ready message like:  
-#### PR Title @approver1 @approver2
+#### [Add New Sloth icon]() @approver1 @approver2
 
 
 ### Double-click → copy without approvers  
 Copies just the link:  
-#### PR Title
+#### [Add ANOTHER Sloth icon]()
 
 
 The copied content can be pasted directly into Slack, Teams, or anywhere that supports clickable links.
@@ -58,20 +58,6 @@ Each line should contain one Slack handle (with `@`):
 
 You can update this file without reloading the extension.
 
----
-
-## 🪄 Example
-
-When viewing a PR titled:
-
-> Add lazy loader for feed highlights
-
-A single-click copies this to your clipboard:
-
-#### Add lazy loader for feed highlights @Deni Avdija @LeBron James @Luka Dončić  
-
-
-Paste it in Slack → ✅ Instant clickable message with mentions.
 
 ---
 
