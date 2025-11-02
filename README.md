@@ -70,6 +70,17 @@ The extension:
 - Replaces the icon briefly on click to indicate success.
 
 ---
+## 🤝 Contribute
+
+Pull requests are welcome!  
+If you’ve got an idea to make the extension smarter, prettier, or even lazier — go for it.  
+
+- Create a feature branch  
+- Open a PR with a clear description  
+
+We’ll review it (lazily but lovingly) 🧡
+
+---
 
 ## 🧑‍💻 Credits
 
