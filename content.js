@@ -1,3 +1,5 @@
+const ICON_BASE_SIZE = 60;
+const ICON_BASE_MARGIN = 8;
 let approvers = [];
 
 // Load approvers from the local file
@@ -18,7 +20,7 @@ function getPRTitleElements() {
 }
 
 function isPRPage(path) {
-	const regex = /^\/[^\/]+\/[^\/]+\/pull\/\d+\/?$/;
+	const regex = /^\/[^\/]+\/[^\/]+\/pull\/\d+/;
 	return regex.test(path);
 }
 
@@ -57,11 +59,13 @@ function addCopyIconToElement(el, sizeScale) {
   icon.src = chrome.runtime.getURL("icon.png");
   icon.className = "copy-link-icon";
   icon.style.cursor = "pointer";
-  icon.style.marginLeft = (8 * sizeScale) + "px";
-  icon.style.width = (60 * sizeScale) + "px";
-  icon.style.height = (60 * sizeScale) + "px";
+  icon.style.marginLeft = (ICON_BASE_MARGIN * sizeScale) + "px";
+  icon.style.width = (ICON_BASE_SIZE * sizeScale) + "px";
+  icon.style.height = (ICON_BASE_SIZE * sizeScale) + "px";
   icon.style.verticalAlign = "middle";
   icon.style.transition = "transform 0.2s ease";
+  icon.dataset.text = el.innerText.trim();
+  icon.dataset.url = 
   
   icon.addEventListener("mouseenter", () => (icon.style.transform = "scale(1.2)"));
   icon.addEventListener("mouseleave", () => (icon.style.transform = "scale(1)"));
@@ -107,7 +111,11 @@ function addCopyIconToElement(el, sizeScale) {
 
 function copyElementAsClickableLink(el, includeApprovers = true) {
   const text = el.innerText.trim();
-  const url = window.location.href;
+  let url = window.location.href;
+  const anchor = el.closest('a');
+  if (anchor && anchor.href) {
+    url = anchor.href;
+  }
   
   // Join approvers dynamically only if includeApprovers is true
   const mentions = includeApprovers ? " " + approvers.join(" ") : "";
