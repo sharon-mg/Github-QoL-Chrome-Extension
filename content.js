@@ -1,3 +1,5 @@
+const ICON_BASE_SIZE = 60;
+const ICON_BASE_MARGIN = 8;
 let approvers = [];
 
 // Load approvers from the local file
@@ -11,14 +13,45 @@ fetch(chrome.runtime.getURL("approvers.txt"))
   })
   .catch(err => console.error("Failed to load approvers.txt:", err));
   
-function getPRTitleElement() {
-  const el = document.querySelector(".markdown-title");
+function getPRTitleElements() {
+  const el = document.querySelectorAll(".markdown-title");
   if (el) return el;
   return null;
 }
 
+function isPRPage(path) {
+	const regex = /^\/[^\/]+\/[^\/]+\/pull\/\d+/;
+	return regex.test(path);
+}
+
+function isPullsPage(path) {
+	const regex = /^\/[^\/]+\/[^\/]+\/pulls\/?$/;
+	return regex.test(path);
+}
+
 function addCopyIcon() {
-  const el = getPRTitleElement();
+	const path = window.location.pathname;
+	if (isPRPage(path)) {
+		addSingleCopyIcon();
+	}
+	else if (isPullsPage(path)) {
+		addAllCopyIcons();
+	}
+}
+
+function addSingleCopyIcon() {
+	const elAll = getPRTitleElements();
+	if (!elAll) return;
+	addCopyIconToElement(elAll[0], 1);
+}
+
+function addAllCopyIcons() {
+	const elAll = getPRTitleElements();
+	if (!elAll) return;
+	elAll.forEach(el => { addCopyIconToElement(el, 0.5) });
+}
+
+function addCopyIconToElement(el, sizeScale) {
   if (!el) return;
   if (el.nextSibling && el.nextSibling.classList?.contains("copy-link-icon")) return;
   
@@ -26,11 +59,13 @@ function addCopyIcon() {
   icon.src = chrome.runtime.getURL("icon.png");
   icon.className = "copy-link-icon";
   icon.style.cursor = "pointer";
-  icon.style.marginLeft = "8px";
-  icon.style.width = "60px";
-  icon.style.height = "60px";
+  icon.style.marginLeft = (ICON_BASE_MARGIN * sizeScale) + "px";
+  icon.style.width = (ICON_BASE_SIZE * sizeScale) + "px";
+  icon.style.height = (ICON_BASE_SIZE * sizeScale) + "px";
   icon.style.verticalAlign = "middle";
   icon.style.transition = "transform 0.2s ease";
+  icon.dataset.text = el.innerText.trim();
+  icon.dataset.url = 
   
   icon.addEventListener("mouseenter", () => (icon.style.transform = "scale(1.2)"));
   icon.addEventListener("mouseleave", () => (icon.style.transform = "scale(1)"));
@@ -48,7 +83,7 @@ function addCopyIcon() {
     
     clickTimer = setTimeout(() => {
       clickTimer = null;
-      copyElementAsClickableLink(true);
+      copyElementAsClickableLink(el, true);
       // Change icon to pressed state
       const originalSrc = icon.src;
       icon.src = chrome.runtime.getURL("iconPressed.png");
@@ -61,7 +96,7 @@ function addCopyIcon() {
   
   // Double click - copy without approvers
   icon.addEventListener("dblclick", () => {
-    copyElementAsClickableLink(false);
+    copyElementAsClickableLink(el, false);
     // Change icon to pressed state
     const originalSrc = icon.src;
     icon.src = chrome.runtime.getURL("iconDoublePressed.png");
@@ -74,12 +109,13 @@ function addCopyIcon() {
   el.parentNode.insertBefore(icon, el.nextSibling);
 }
 
-function copyElementAsClickableLink(includeApprovers = true) {
-  const el = getPRTitleElement();
-  if (!el) return;
-  
+function copyElementAsClickableLink(el, includeApprovers = true) {
   const text = el.innerText.trim();
-  const url = window.location.href;
+  let url = window.location.href;
+  const anchor = el.closest('a');
+  if (anchor && anchor.href) {
+    url = anchor.href;
+  }
   
   // Join approvers dynamically only if includeApprovers is true
   const mentions = includeApprovers ? " " + approvers.join(" ") : "";
@@ -107,9 +143,5 @@ function copyElementAsClickableLink(includeApprovers = true) {
   document.body.removeChild(temp);
 }
 
-// Run on load
-addCopyIcon();
-
-// Observe DOM for SPA navigation
-const observer = new MutationObserver(addCopyIcon);
-observer.observe(document.body, { childList: true, subtree: true });
+// Run on load/navigation
+document.addEventListener("turbo:load", addCopyIcon);
