@@ -131,6 +131,10 @@ function createDropdownOption(name, href) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             navigate(e);
+        } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            // Prevent default scrolling, but let the event bubble to container
+            e.preventDefault();
+            // Don't stop propagation - let it bubble to container handler
         }
     });
     
@@ -220,7 +224,7 @@ async function insertDropdown() {
         return;
     }
 
-    // Remove existing dropdown if it exists (more reliable than just checking)
+    // Skip insertion if dropdown already exists
     const existingDropdown = document.querySelector("#ga-custom-dropdown");
     if (existingDropdown) return;
 
@@ -322,16 +326,19 @@ async function insertDropdown() {
 
     // Filter functionality
     let filteredWorkflows = workflows;
-    input.addEventListener("input", (e) => {
-        const filterText = e.target.value.toLowerCase().trim();
-        
+    let selectedIndex = -1;
+    
+    const updateOptions = () => {
         // Clear existing options
         optionsContainer.innerHTML = "";
         
         // Filter workflows
         filteredWorkflows = workflows.filter(workflow =>
-            workflow.name.toLowerCase().includes(filterText)
+            workflow.name.toLowerCase().includes(input.value.toLowerCase().trim())
         );
+        
+        // Reset selected index when filtering
+        selectedIndex = -1;
         
         // Show filtered options or "No results" message
         if (filteredWorkflows.length === 0) {
@@ -345,6 +352,10 @@ async function insertDropdown() {
                 optionsContainer.appendChild(option);
             });
         }
+    };
+    
+    input.addEventListener("input", (e) => {
+        updateOptions();
         
         // Show panel if input has focus
         if (document.activeElement === input) {
@@ -358,39 +369,126 @@ async function insertDropdown() {
     });
 
     input.addEventListener("blur", (e) => {
-        // Delay to allow click events on options to fire
+        // Delay to allow click events on options to fire and keyboard navigation
         setTimeout(() => {
             if (!dropdownContainer.contains(document.activeElement)) {
                 dropdownPanel.classList.remove("ga-dropdown-panel-visible");
+                // Reset selection when panel closes
+                optionsContainer.querySelectorAll(".ga-dropdown-option-selected").forEach(opt => {
+                    opt.classList.remove("ga-dropdown-option-selected");
+                });
+                selectedIndex = -1;
             }
         }, 200);
     });
+    
+    // Keep panel visible when options are focused
+    optionsContainer.addEventListener("focusin", (e) => {
+        if (e.target.classList.contains("ga-dropdown-option")) {
+            dropdownPanel.classList.add("ga-dropdown-panel-visible");
+        }
+    });
 
-    // Keyboard navigation
-    let selectedIndex = -1;
-    input.addEventListener("keydown", (e) => {
+    // Keyboard navigation - handle on both input and container
+    const handleArrowNavigation = (e) => {
+        // Only handle arrow keys, Enter, and Escape
+        if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Enter" && e.key !== "Escape") {
+            return;
+        }
+        
+        // Get fresh options list each time
         const options = Array.from(optionsContainer.querySelectorAll(".ga-dropdown-option:not(.ga-dropdown-option-no-results)"));
+        
+        if (options.length === 0) {
+            return; // No options to navigate
+        }
         
         if (e.key === "ArrowDown") {
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Ensure panel is visible
+            dropdownPanel.classList.add("ga-dropdown-panel-visible");
+            
+            // Sync selectedIndex with currently focused option if applicable
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl.classList.contains("ga-dropdown-option")) {
+                const currentIndex = options.indexOf(activeEl);
+                if (currentIndex >= 0) {
+                    selectedIndex = currentIndex;
+                }
+            }
+            
+            // Move to next option
             selectedIndex = Math.min(selectedIndex + 1, options.length - 1);
-            options[selectedIndex]?.focus();
+            
+            // Remove all selection highlights
+            options.forEach(opt => opt.classList.remove("ga-dropdown-option-selected"));
+            
+            // Highlight and focus the selected option
+            if (selectedIndex >= 0 && selectedIndex < options.length) {
+                const selectedOption = options[selectedIndex];
+                if (selectedOption) {
+                    selectedOption.classList.add("ga-dropdown-option-selected");
+                    selectedOption.focus();
+                    selectedOption.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                }
+            }
         } else if (e.key === "ArrowUp") {
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Ensure panel is visible
+            dropdownPanel.classList.add("ga-dropdown-panel-visible");
+            
+            // Sync selectedIndex with currently focused option if applicable
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl.classList.contains("ga-dropdown-option")) {
+                const currentIndex = options.indexOf(activeEl);
+                if (currentIndex >= 0) {
+                    selectedIndex = currentIndex;
+                }
+            }
+            
+            // Move to previous option
             selectedIndex = Math.max(selectedIndex - 1, -1);
+            
+            // Remove all selection highlights
+            options.forEach(opt => opt.classList.remove("ga-dropdown-option-selected"));
+            
             if (selectedIndex === -1) {
                 input.focus();
-            } else {
-                options[selectedIndex]?.focus();
+            } else if (selectedIndex >= 0 && selectedIndex < options.length) {
+                const selectedOption = options[selectedIndex];
+                if (selectedOption) {
+                    selectedOption.classList.add("ga-dropdown-option-selected");
+                    selectedOption.focus();
+                    selectedOption.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                }
             }
-        } else if (e.key === "Enter" && selectedIndex >= 0 && options[selectedIndex]) {
-            e.preventDefault();
-            options[selectedIndex].click();
+        } else if (e.key === "Enter") {
+            if (selectedIndex >= 0 && selectedIndex < options.length && options[selectedIndex]) {
+                e.preventDefault();
+                e.stopPropagation();
+                options[selectedIndex].click();
+            }
         } else if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
             dropdownPanel.classList.remove("ga-dropdown-panel-visible");
-            input.blur();
+            input.focus();
+            // Reset selection
+            options.forEach(opt => opt.classList.remove("ga-dropdown-option-selected"));
+            selectedIndex = -1;
         }
-    });
+    };
+    
+    // Add keyboard navigation to input
+    input.addEventListener("keydown", handleArrowNavigation);
+    
+    // Add keyboard navigation to options container (for when focus is on an option)
+    // Use capture phase to ensure we handle it before the option element
+    optionsContainer.addEventListener("keydown", handleArrowNavigation, true);
 }
 
 // Listen to turbo:load events
