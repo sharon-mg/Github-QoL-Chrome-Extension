@@ -1,0 +1,115 @@
+.ga-custom-dropdown {
+  position: relative;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.ga-dropdown-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ga-dropdown-input {
+  padding: 6px 10px;
+  padding-right: 32px;
+  border: 1px solid #d1d9e0;
+  border-radius: 6px;
+  width: 100%;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.ga-dropdown-input:disabled {
+  background-color: #f6f8fa;
+  cursor: not-allowed;
+}
+
+.ga-dropdown-spinner {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.ga-spinner-svg {
+  width: 16px;
+  height: 16px;
+  color: #656d76;
+  animation: ga-spinner-rotate 1.5s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes ga-spinner-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ga-dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #d1d9e0;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.ga-dropdown-panel.ga-dropdown-panel-visible {
+  display: block;
+}
+
+.ga-dropdown-option {
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #24292f;
+  transition: background-color 0.1s;
+}
+
+.ga-dropdown-option:hover,
+.ga-dropdown-option:focus,
+.ga-dropdown-option.ga-dropdown-option-selected,
+.ga-dropdown-option.ga-dropdown-option-selected:hover,
+.ga-dropdown-option.ga-dropdown-option-selected:focus {
+  background-color: #e9e9e9;
+  outline: none;
+}
+
+/* .ga-dropdown-option.ga-dropdown-option-selected {
+  background-color: #0969da;
+  color: #fff;
+} */
+
+/* .ga-dropdown-option.ga-dropdown-option-selected:hover,
+.ga-dropdown-option.ga-dropdown-option-selected:focus {
+  background-color: #0860ca;
+} */
+
+.ga-dropdown-option:first-child {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.ga-dropdown-option:last-child {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.ga-dropdown-option-no-results {
+  padding: 12px;
+  color: #656d76;
+  text-align: center;
+  cursor: default;
+  pointer-events: none;
+}
