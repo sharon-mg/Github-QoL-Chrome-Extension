@@ -5,12 +5,6 @@
 
 A Chrome extension that adds quality-of-life improvements to GitHub, including a PR link copier and workflows filter.
 
-## PR Link Copier
-
-Adds a small copy icon to pull request pages and the Pull Requests list page, letting you instantly copy a formatted, clickable link for Slack — with or without approvers.  
-
-Because typing PR links (and tagging people) is overrated 😎.
-
 ---
 
 ## 🚀 Features
@@ -108,8 +102,9 @@ You can update this file without reloading the extension.
 Pull requests are welcome!  
 If you’ve got an idea to make the extension smarter, prettier, or even lazier — go for it.  
 
-- Create a feature branch  
-- Open a PR with a clear description  
+- Fork and Clone the repo
+- Create a branch on your fork and work on your changes  
+- Open a PR to this repository with a clear description  
 
 We’ll review it (lazily but lovingly) 🧡
 
