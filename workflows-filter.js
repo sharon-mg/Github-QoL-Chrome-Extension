@@ -245,9 +245,8 @@ async function insertDropdown() {
     const input = document.createElement("input");
     input.type = "text";
     input.className = "ga-dropdown-input";
-    input.placeholder = "Filter workflows...";
+    input.placeholder = "Loading workflows...";
     input.setAttribute("autocomplete", "off");
-    input.disabled = true; // Disable until workflows are loaded
 
     // Create loading spinner
     const spinner = document.createElement("div");
@@ -295,7 +294,7 @@ async function insertDropdown() {
     if (workflows) {
         // Use cached workflows - no need to show spinner or fetch
         spinner.remove();
-        input.disabled = false;
+        input.placeholder = "Filter workflows...";
     } else {
         // Fetch workflows asynchronously
         const workflowsHtml = await fetchAllWorkflows();
@@ -313,16 +312,10 @@ async function insertDropdown() {
             setCachedWorkflows(cacheKey, workflows);
         }
 
-        // Remove spinner and enable input
+        // Remove spinner and restore placeholder
         spinner.remove();
-        input.disabled = false;
+        input.placeholder = "Filter workflows...";
     }
-
-    // Populate initial options
-    workflows.forEach(workflow => {
-        const option = createDropdownOption(workflow.name, workflow.href);
-        optionsContainer.appendChild(option);
-    });
 
     // Filter functionality
     let filteredWorkflows = workflows;
@@ -353,6 +346,19 @@ async function insertDropdown() {
             });
         }
     };
+
+    // Populate initial options, applying any text already typed during load
+    workflows.forEach(workflow => {
+        const option = createDropdownOption(workflow.name, workflow.href);
+        optionsContainer.appendChild(option);
+    });
+
+    if (input.value.trim()) {
+        updateOptions();
+        if (document.activeElement === input) {
+            dropdownPanel.classList.add("ga-dropdown-panel-visible");
+        }
+    }
     
     input.addEventListener("input", (e) => {
         updateOptions();

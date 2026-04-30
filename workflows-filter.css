@@ -21,10 +21,6 @@
   box-sizing: border-box;
 }
 
-.ga-dropdown-input:disabled {
-  background-color: #f6f8fa;
-  cursor: not-allowed;
-}
 
 .ga-dropdown-spinner {
   position: absolute;
